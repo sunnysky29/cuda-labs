@@ -5,8 +5,8 @@
  *
  * 编译与运行:
  * 1. 将代码保存为 vector_add.cu
- * 2. 使用 nvcc 编译: 
- nvcc -o vector_add vector_add.cu
+ * 2. 使用 nvcc 编译: && 等待执行
+ nvcc -o vector_add vector_add.cu &&  ./vector_add
  * 3. 运行可执行文件: ./vector_add
 for i in {1..1000}; do ./vector_add; done
 
@@ -17,10 +17,17 @@ for i in {1..1000}; do ./vector_add; done
 
 // CUDA 内核函数：在 GPU 上执行向量加法
 __global__ void vectorAdd(const float *A, const float *B, float *C, int N) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    // 全局线程索引=块索引×每块线程数+块内线程索引
+    int i = blockIdx.x * blockDim.x + threadIdx.x; 
     if (i < N) {
         C[i] = A[i] + B[i];
+    // 仅打印前 10 个线程的计算结果
+    if (i < 10000000) {
+        printf("Thread %d: A[%d] = %f, B[%d] = %f, C[%d] = %f\n",
+                i, i, A[i], i, B[i], i, C[i]);
+        }
     }
+
 }
 
 int main() {
